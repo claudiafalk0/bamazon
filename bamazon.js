@@ -29,38 +29,41 @@ function readTable(){
        };
        console.log(displayTable.toString());
        divider;
-       questions();
+       questions(res);
 
-    })
-}
-function updateProduct(){
-    console.log
-}
+    });
+};
 
 function questions(){
     inquirer.prompt([
         {
             name: 'id_product',
+            type: 'input',
             message: 'Please enter the id of the item you would like to purchase',
             validate: function(value){
                 if(isNaN(value)){
                     console.log(`\n Please enter an item number\n\n`)
-                }else if(value != res.id){
-                    console.log(`\nplease enter a valid id\n\n`);
                 }
+                return true;
+
             }
 
-        },{
+        },
+        {
             name:'how_many',
             message: 'Please enter the number of items you would like to purchase'
 
         }
     ]).then(function(answer){
-        if(answer.quantity>='how_many'){
+        if(parseInt(answer.id_product) != items.id){
+            console.log('I"m sorry, please choose a valid id');
+            questions();
+        }else if(parseInt(answer.how_many) <= items.quantity){
             console.log(`You have purchased ${how_many} ${id_product}`);
-        }else{
+            // function updateTable();
+        }else {
             console.log('Insufficient quantity! Please enter a new amount.');
         };
 
-    })
-}
+    });
+};
