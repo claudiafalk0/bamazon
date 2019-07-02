@@ -33,6 +33,29 @@ function readTable(){
 
     });
 };
+function isValidID(product_id){
+    var correctID;
+    connection.query('SELECT id FROM items', function (err, res){
+        if (err) throw err;
+        for(i = 0; i < res.length; i++){
+            if(res[i] === product_id){
+                return correctID = true
+            }
+        }
+    });
+    return correctID = false;
+};
+
+// function getQuatity(id) {
+//     return connection.query('SELECT * FROM items WHERE id = ?', [id], function(err, res) {
+//         if (err) throw err;
+//         return res[0].quantity;
+//     });
+// }
+
+// function quantity(){
+//     connection.query('SELECT quantity FROM items')
+// }
 
 function questions(){
     inquirer.prompt([
@@ -55,15 +78,19 @@ function questions(){
 
         }
     ]).then(function(answer){
-        if(parseInt(answer.id_product) != items.id){
+        console.log('This should be false' + isValidID());
+        console.log('This should be false' + !isValidID(answer.id_product));
+        if(!isValidID(answer.id_product)) {
             console.log('I"m sorry, please choose a valid id');
-            questions();
-        }else if(parseInt(answer.how_many) <= items.quantity){
-            console.log(`You have purchased ${how_many} ${id_product}`);
-            // function updateTable();
-        }else {
-            console.log('Insufficient quantity! Please enter a new amount.');
+            readTable();
         };
+        // } else if(answer.how_many <= getQuatity(answer.id_product)) {
+        //     console.log(`You have purchased ${how_many} ${id_product}`);
+   
+        // }
+        //else {
+        //     console.log('Insufficient quantity! Please enter a new amount.');
+        // };
 
     });
 };
