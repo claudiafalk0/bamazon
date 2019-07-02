@@ -33,29 +33,26 @@ function readTable(){
 
     });
 };
-function isValidID(product_id){
-    var correctID;
+function isValidID(num){
+    var valid = false;
     connection.query('SELECT id FROM items', function (err, res){
         if (err) throw err;
-        for(i = 0; i < res.length; i++){
-            if(res[i] === product_id){
-                return correctID = true
+        for(i = 0; i < res.length; i++){            
+            if(res[i].id === num){
+                console.log(res[i].id);
+                valid = true;
+                return valid;
             }
-        }
+        };
     });
-    return correctID = false;
-};
+}
 
-// function getQuatity(id) {
-//     return connection.query('SELECT * FROM items WHERE id = ?', [id], function(err, res) {
-//         if (err) throw err;
-//         return res[0].quantity;
-//     });
-// }
-
-// function quantity(){
-//     connection.query('SELECT quantity FROM items')
-// }
+function getQuatity(id) {
+    return connection.query('SELECT * FROM items WHERE id = ?', [id], function(err, res) {
+        if (err) throw err;
+        return res[0].quantity;
+    });
+}
 
 function questions(){
     inquirer.prompt([
@@ -78,17 +75,20 @@ function questions(){
 
         }
     ]).then(function(answer){
-        console.log('This should be false' + isValidID());
-        console.log('This should be false' + !isValidID(answer.id_product));
-        if(!isValidID(answer.id_product)) {
+        connection.query('SELECT id FROM items', function(err, res){
+            if(err) throw err;
+            for(var i = 0; i < res.length; i++) {
+                if(res[i].id === answer.id_produt){
+                    console.log('item chosen successfully')
+                }
+            } 
             console.log('I"m sorry, please choose a valid id');
             readTable();
-        };
-        // } else if(answer.how_many <= getQuatity(answer.id_product)) {
-        //     console.log(`You have purchased ${how_many} ${id_product}`);
+        })
+        // else if(answer.how_many <= getQuatity(answer.id_product)) {
+        //     console.log(`You have purchased ${how_many} products`);
    
-        // }
-        //else {
+        // } else {
         //     console.log('Insufficient quantity! Please enter a new amount.');
         // };
 
