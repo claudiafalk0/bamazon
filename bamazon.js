@@ -33,26 +33,7 @@ function readTable(){
 
     });
 };
-function isValidID(num){
-    var valid = false;
-    connection.query('SELECT id FROM items', function (err, res){
-        if (err) throw err;
-        for(i = 0; i < res.length; i++){            
-            if(res[i].id === num){
-                console.log(res[i].id);
-                valid = true;
-                return valid;
-            }
-        };
-    });
-}
 
-function getQuatity(id) {
-    return connection.query('SELECT * FROM items WHERE id = ?', [id], function(err, res) {
-        if (err) throw err;
-        return res[0].quantity;
-    });
-}
 
 function questions(){
     inquirer.prompt([
@@ -78,8 +59,25 @@ function questions(){
         connection.query('SELECT id FROM items', function(err, res){
             if(err) throw err;
             for(var i = 0; i < res.length; i++) {
-                if(res[i].id === answer.id_produt){
-                    console.log('item chosen successfully')
+                if(res[i].id === parseInt(answer.id_product)){
+                    connection.query('SELECT quantity FROM items', function(err, res){
+                        if (err) throw err;
+                        if(parseInt(answer.how_many) <= res[i].quantity){
+                            var newNum = res[i].quantity - parseInt(answer.how_many);
+                            connection.query('UPDATE items SET ? WHERE ?'[
+                                {
+                                    quantity: newNum
+                                }
+                            ],
+                            function(err){
+                                if(err) throw err;
+                                console.log(`You have purchased ${answer.how_many}. There are now only ${newNum} left.`);
+                            }
+                            );
+                        }else{
+                            console.log('Insufficient quantity! Please enter a new amount');
+                        }
+                    });
                 }
             } 
             console.log('I"m sorry, please choose a valid id');
