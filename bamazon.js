@@ -20,11 +20,11 @@ function readTable(){
         if (err) throw err;
        var displayTable = new table({
         head: ['Item ID', 'Product Name', 'Category', 'Price', 'Quantity'],
-        colWidths: [10,25,25,10,14]
+        colWidths: [10,25,25,12,14]
        });
        for (i = 0; i < res.length; i++){
            displayTable.push(
-               [res[i].id, res[i].name, res[i].department_name, res[i].price, res[i].quantity]
+               [res[i].id, res[i].name, res[i].department_name, '$' + res[i].price.toFixed(2), res[i].quantity]
            );
        };
        console.log(displayTable.toString());
@@ -34,12 +34,10 @@ function readTable(){
     });
 };
 function updateItemQuantity(obj, num){
-    connection.query('SELECT quantity FROM items', function(err, res){
-        if (err) throw err;
         if(num <= obj.quantity){
-
             var newNum = obj.quantity - parseInt(num);
-            connection.query('UPDATE items SET ? WHERE ?')[
+            connection.query('UPDATE items SET ? WHERE ?',
+            [
                 {
                     quantity: newNum
                 },
@@ -49,12 +47,15 @@ function updateItemQuantity(obj, num){
             ],
             function(err){
                 if(err) throw err;
-                return console.log(`You have purchased ${how_many} items. The new total is ${newNum}`);
+                return;
             }
+            )
+            console.log(`You have purchased ${num} items. Your total cost is $${(num * obj.price).toFixed(2)}`);
+            readTable();
         }else{
-            console.log('Insufficient quantity. Please enter a new amount');
+            console.log('Insufficient quantity!');
+            readTable();
         }
-    })
 }
 
 function questions(){
@@ -62,20 +63,17 @@ function questions(){
         {
             name: 'id_product',
             type: 'input',
-            message: 'Please enter the id of the item you would like to purchase',
+            message: 'Please enter the id of the item you would like to purchase\n',
             validate: function(value){
                 if(isNaN(value)){
                     console.log(`\n Please enter an item number\n\n`)
                 }
                 return true;
-
             }
-
         },
         {
             name:'how_many',
-            message: 'Please enter the number of items you would like to purchase'
-
+            message: 'Please enter the number of items you would like to purchase\n'
         }
     ]).then(function(answer){
         connection.query('SELECT * FROM items', function(err, res){
@@ -86,8 +84,9 @@ function questions(){
                 };
             };
             console.log('I"m sorry, please choose a valid id');
+            readTable()
         });
-        readTable();
+        // readTable();
     });
 
 };
