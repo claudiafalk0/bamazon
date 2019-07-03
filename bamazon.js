@@ -33,7 +33,29 @@ function readTable(){
 
     });
 };
+function updateItemQuantity(obj, num){
+    connection.query('SELECT quantity FROM items', function(err, res){
+        if (err) throw err;
+        if(num <= obj.quantity){
 
+            var newNum = obj.quantity - parseInt(num);
+            connection.query('UPDATE items SET ? WHERE ?')[
+                {
+                    quantity: newNum
+                },
+                {
+                    id: obj.id
+                }
+            ],
+            function(err){
+                if(err) throw err;
+                return console.log(`You have purchased ${how_many} items. The new total is ${newNum}`);
+            }
+        }else{
+            console.log('Insufficient quantity. Please enter a new amount');
+        }
+    })
+}
 
 function questions(){
     inquirer.prompt([
@@ -56,39 +78,16 @@ function questions(){
 
         }
     ]).then(function(answer){
-        connection.query('SELECT id FROM items', function(err, res){
+        connection.query('SELECT * FROM items', function(err, res){
             if(err) throw err;
             for(var i = 0; i < res.length; i++) {
                 if(res[i].id === parseInt(answer.id_product)){
-                    connection.query('SELECT quantity FROM items', function(err, res){
-                        if (err) throw err;
-                        if(parseInt(answer.how_many) <= res[i].quantity){
-                            var newNum = res[i].quantity - parseInt(answer.how_many);
-                            connection.query('UPDATE items SET ? WHERE ?'[
-                                {
-                                    quantity: newNum
-                                }
-                            ],
-                            function(err){
-                                if(err) throw err;
-                                console.log(`You have purchased ${answer.how_many}. There are now only ${newNum} left.`);
-                            }
-                            );
-                        }else{
-                            console.log('Insufficient quantity! Please enter a new amount');
-                        }
-                    });
-                }
-            } 
+                    return updateItemQuantity(res[i], answer.how_many);
+                };
+            };
             console.log('I"m sorry, please choose a valid id');
-            readTable();
-        })
-        // else if(answer.how_many <= getQuatity(answer.id_product)) {
-        //     console.log(`You have purchased ${how_many} products`);
-   
-        // } else {
-        //     console.log('Insufficient quantity! Please enter a new amount.');
-        // };
-
+        });
+        readTable();
     });
+
 };
